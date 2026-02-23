@@ -9,7 +9,7 @@ First,install related packages(such as openjdk),especially a x server(eg. termux
 
 Second,find a command line launcher(such as cmcl or portablemc) to install most minecraft libs(jars without natives run well on termux),add jvmArgs -Djna.boot.library.path=\<directory of your libjnidispatch \>,you can find libjnidispatch in jna/your version here,also add -Djava.library.path=$PREFIX/lib
 
-Third,substitute all lwjgl jars to correct version of lwjgl here
+Third,substitute all lwjgl jars to correct version of lwjgl here,including jars combined in the vulkan mod(remember version)
 
 Then,launch x and launch minecraft
 
