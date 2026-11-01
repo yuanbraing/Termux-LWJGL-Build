@@ -1,0 +1,41 @@
+name: Encode BTF from vendor vmlinux
+
+on:
+  workflow_dispatch: # 仅手动触发，这是合规的关键
+
+permissions: {} # 顶层收回所有默认权限
+
+jobs:
+  encode:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # 仅需读取仓库内容（下载 Release 附件）
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@<SHA> # 例如 actions/checkout@v4 对应的完整 SHA
+        with:
+          persist-credentials: false # 防止凭据泄露到 artifact
+
+      - name: Install dwarves (pahole)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dwarves
+
+      - name: Download compiled.elf from Release
+        run: |
+          curl -L -o compiled.elf \
+            "https://github.com/yuanbraing/Termux-LWJGL-Build/releases/download/vmlinux/compiled.elf"
+
+      - name: Encode BTF (single-threaded, memory-optimized)
+        run: |
+          pahole -j1 --btf_encode_detached=vmlinux.btf \
+                 --skip_encoding_btf_enum64 \
+                 compiled.elf
+
+      - name: Upload BTF artifact
+        uses: actions/upload-artifact@<SHA> # 例如 actions/upload-artifact@v4 对应的完整 SHA
+        with:
+          name: vmlinux-btf
+          path: vmlinux.btf
+          retention-days: 1 # 产物仅保留 1 天，减少存储
